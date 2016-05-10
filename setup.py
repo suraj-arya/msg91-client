@@ -23,8 +23,8 @@ test_requirements = [
 ]
 
 setup(
-    name='msg91',
-    version='0.1.0',
+    name='msg91-client',
+    version='0.1.1',
     description="A simple python client for MSG91 APIs",
     long_description=readme + '\n\n' + history,
     author="Suraj Arya",

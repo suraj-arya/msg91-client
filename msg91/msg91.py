@@ -38,7 +38,6 @@ class MSG91Client(object):
         self.app_key = app_key
 
         self.sender_id = kwargs.get('sender_id') or 'MSGIND'
-        self.country = kwargs.get('country') or 91
         self.route = kwargs.get('route') or 4
 
         self.sms_url = 'https://control.msg91.com/api/sendhttp.php'
@@ -55,10 +54,10 @@ class MSG91Client(object):
         return {'application-key': self.app_key,
                 'Content-Type': 'application/json'}
 
-    def generate_otp(self, mobile_number):
+    def generate_otp(self, mobile_number, country=91):
         url = self._get_otp_url('otp')
 
-        payload = {'countryCode': str(self.country),
+        payload = {'countryCode': str(country),
                    'mobileNumber': str(mobile_number),
                    'getGeneratedOTP': True}
 
@@ -67,25 +66,32 @@ class MSG91Client(object):
 
         return json.loads(res.content)
 
-    def check_otp_status(self, mobile, refresh_token):
+    def check_otp_status(self, mobile, refresh_token, country=91):
         res = requests.get(self._get_otp_url('status'), params={'mobileNumber': mobile,
-                                                                'countryCode': self.country,
+                                                                'countryCode': country,
                                                                 'refreshToken': refresh_token},
                            headers=self._get_otp_headers())
 
         return json.loads(res.content)
 
-    def send_sms(self, message, *receivers):
-        if len(receivers) == 0:
-            raise MSG91Exception('At least one mobile number is required '
-                                 'for sending sms.')
+    def send_sms(self, message, mobile, country=91):
+        res = requests.get(self.sms_url, params={'authkey': self.auth_key,
+                                                 'mobiles': mobile,
+                                                 'message': message,
+                                                 'sender': self.sender_id,
+                                                 'route': self.route,
+                                                 'country': country,
+                                                 'response': 'json'})
+        return json.loads(res.content)
 
-        mobiles = ','.join(str(number) for number in receivers)
+    def send_sms_bulk(self, message, country=91, *recipients):
+        mobiles = ','.join(str(num) for num in recipients)
+
         res = requests.get(self.sms_url, params={'authkey': self.auth_key,
                                                  'mobiles': mobiles,
                                                  'message': message,
                                                  'sender': self.sender_id,
                                                  'route': self.route,
-                                                 'country': self.country,
+                                                 'country': country,
                                                  'response': 'json'})
         return json.loads(res.content)
