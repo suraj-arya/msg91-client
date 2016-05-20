@@ -63,6 +63,9 @@ class MSG91Client(object):
         res = requests.post(url, data=json.dumps(payload),
                             headers=self._get_app_key_headers())
 
+        if res.status_code != requests.codes.ok:
+            raise MSG91Exception('Error {}'.format(res.status_code))
+
         return json.loads(res.content)
 
     def verify_otp(self, mobile_number, otp, country=91):
@@ -75,6 +78,9 @@ class MSG91Client(object):
                             data=json.dumps(payload),
                             headers=self._get_app_key_headers())
 
+        if res.status_code != requests.codes.ok:
+            raise MSG91Exception('Error {}'.format(res.status_code))
+
         return json.loads(res.content)
 
     def check_otp_status(self, mobile, refresh_token, country=91):
@@ -83,6 +89,9 @@ class MSG91Client(object):
                                    'countryCode': country,
                                    'refreshToken': refresh_token},
                            headers=self._get_app_key_headers())
+
+        if res.status_code != requests.codes.ok:
+            raise MSG91Exception('Error {}'.format(res.status_code))
 
         return json.loads(res.content)
 
@@ -95,6 +104,9 @@ class MSG91Client(object):
                                    'route': self.route,
                                    'country': country,
                                    'response': 'json'})
+        if res.status_code != requests.codes.ok:
+            raise MSG91Exception('Error {}'.format(res.status_code))
+
         return json.loads(res.content)
 
     def send_sms_bulk(self, message, country=91, *recipients):
@@ -108,4 +120,8 @@ class MSG91Client(object):
                                    'route': self.route,
                                    'country': country,
                                    'response': 'json'})
+
+        if res.status_code != requests.codes.ok:
+            raise MSG91Exception('Error {}'.format(res.status_code))
+
         return json.loads(res.content)
