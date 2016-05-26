@@ -81,7 +81,15 @@ class MSG91Client(object):
         if res.status_code != requests.codes.ok:
             raise MSG91Exception('Error {}'.format(res.status_code))
 
-        return json.loads(res.content)
+        res = json.loads(res.content)
+        if res.get('status', None) != 'success':
+            return False
+
+        response = res.get('response', {})
+        if response.get('code') is 'NUMBER_VERIFIED_SUCCESSFULLY':
+            return True
+
+        return False
 
     def check_otp_status(self, mobile, refresh_token, country=91):
         res = requests.get(self._get_otp_url('status'),
