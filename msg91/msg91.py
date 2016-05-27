@@ -79,14 +79,14 @@ class MSG91Client(object):
                             headers=self._get_app_key_headers())
 
         if res.status_code != requests.codes.ok:
-            raise MSG91Exception('Error {}'.format(res.status_code))
+            return False
 
         res = json.loads(res.content)
         if res.get('status', None) != 'success':
             return False
 
         response = res.get('response', {})
-        if response.get('code') is 'NUMBER_VERIFIED_SUCCESSFULLY':
+        if response.get('code') == 'NUMBER_VERIFIED_SUCCESSFULLY':
             return True
 
         return False
